@@ -5,7 +5,7 @@ namespace Project
 {
     class Program
     {
-		static double Factorial(int value)
+        static double Factorial(int value)
 		{
 			if (value > 0)
 			{
@@ -23,13 +23,26 @@ namespace Project
 			string pattern = @"^[-+]?[0-9]*[.,]?[0-9]+(?:[eE][-+]?[0-9]+)?$";
 			return Regex.IsMatch(str, pattern);
 		}
+		public static char OperatorValidator(char oper)
+		{
+			char[] op_arr = new char[6] { '+', '-', '*', '/', '^', '!' };
+
+			foreach (var chr in op_arr)
+            {
+				if (oper == chr)
+                {
+					return oper;
+                }
+            }
+			throw new Exception("Invalid operator input!");
+		}
 		static void MassageException()
         {
 			Console.WriteLine("Wrong input! Try again!");
 		}
 		static void Main(string[] args)
         {
-			char select;
+			char select; 
 			bool temp = true;
 
 			do
@@ -47,8 +60,24 @@ namespace Project
 
 					var num1 = double.Parse(str1);
 
-					Console.Write("Enter operation (tip: { +, -, *, /, ^, ! }) : ");
-					var op = char.Parse(Console.ReadLine());
+				link1:
+					char op;
+
+					try
+					{
+						Console.Write("Enter operation (tip: { +, -, *, /, ^, ! }) : ");
+						op = char.Parse(Console.ReadLine());
+						OperatorValidator(op);
+					}
+					catch (Exception)
+                    {
+						Console.WriteLine("Invalid operator input!");
+						goto link1;
+						/* 
+						 * ДА, да, знаю что goto не вписывается в рамки хорошей практики объектно-ориентированного программирования.
+						  но так же беспонятия как обойтись здесь без него (не переписывая почти весь код)... Зато работает =)
+						*/
+					}
 
 					if (op != '!')
 					{
@@ -65,11 +94,21 @@ namespace Project
 
 							var num2 = double.Parse(str2);
 
-							if (op == '+') Console.WriteLine("Sum = {0}", (num1 + num2));
-							else if (op == '-') Console.WriteLine("Dif = {0}", (num1 - num2));
-							else if (op == '/' && num2 != 0) Console.WriteLine("Div = {0}", (num1 / num2));
-							else if (op == '*') Console.WriteLine("Mul = {0}", (num1 * num2));
-							else if (op == '^') Console.WriteLine("Pow = {0}", (Math.Pow(num1, num2)));
+							if (op == '+') Console.WriteLine("Sum = {0}", num1 + num2);
+							else if (op == '-') Console.WriteLine("Dif = {0}", num1 - num2);
+							else if (op == '/')
+							{
+								if (num2 == 0)
+								{
+									Console.WriteLine("You cannot divide by zero!");
+								}
+								else
+                                {
+									Console.WriteLine("Div = {0}", num1 / num2);
+								}
+							}
+							else if (op == '*') Console.WriteLine("Mul = {0}", num1 * num2);
+							else if (op == '^') Console.WriteLine("Pow = {0}", Math.Pow(num1, num2));
 							else MassageException();
 						}
 					}
@@ -80,9 +119,10 @@ namespace Project
 					}
 				}
 
+				// Менюшка при вводе символа Y || y прогонит всю программу занаво
 				do
 				{
-                    Console.WriteLine("\nWant to do something else ?! [Press Y (yes) | N (no)] : ");
+					Console.WriteLine("\nWant to do something else ?! [Press Y (yes) | N (no)] : ");
 					select = char.Parse(Console.ReadLine());
 
 					if (select == 'n' || select == 'N') { temp = false; }
